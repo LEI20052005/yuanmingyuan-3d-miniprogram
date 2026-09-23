@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GLB文件验证工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .upload-area {
+            border: 2px dashed #4CAF50;
+            border-radius: 5px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .upload-area:hover {
+            background: #f0f0f0;
+        }
+        .upload-area.dragover {
+            background: #e8f5e9;
+            border-color: #2196F3;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+        .info {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        .info p {
+            margin: 5px 0;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .download-link {
+            display: none;
+            margin-top: 15px;
+        }
+        .download-link a {
+            background: #2196F3;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 GLB文件验证工具</h1>
+        <p style="text-align: center; color: #666;">检查你的GLB文件是否有效</p>
+        
+        <div class="upload-area" id="uploadArea">
+            <p style="font-size: 18px; color: #555;">📁 点击或拖拽GLB文件到这里</p>
+            <p style="color: #999; font-size: 14px;">支持 .glb 文件</p>
+            <input type="file" id="fileInput" accept=".glb">
+        </div>
+
+        <div class="result" id="result"></div>
+        <div class="info" id="info" style="display: none;"></div>
+        
+        <div class="download-link" id="downloadLink">
+            <a href="#" id="downloadBtn">📥 下载修复后的文件</a>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const result = document.getElementById('result');
+        const info = document.getElementById('info');
+        const downloadLink = document.getElementById('downloadLink');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                validateGLB(file);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                validateGLB(file);
+            }
+        });
+
+        function validateGLB(file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const arrayBuffer = e.target.result;
+                const dataView = new DataView(arrayBuffer);
+                
+                try {
+                    // 检查文件大小
+                    const fileSizeKB = (file.size / 1024).toFixed(2);
+                    const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+                    
+                    // 检查Magic值
+                    const magic = dataView.getUint32(0, true);
+                    const expectedMagic = 0x46546C67; // "glTF"
+                    
+                    let infoHTML = `
+                        <p><strong>文件名：</strong>${file.name}</p>
+                        <p><strong>文件大小：</strong>${fileSizeKB} KB (${fileSizeMB} MB)</p>
+                        <p><strong>Magic值：</strong>0x${magic.toString(16)}</p>
+                    `;
+                    
+                    if (magic === expectedMagic) {
+                        const version = dataView.getUint32(4, true);
+                        const length = dataView.getUint32(8, true);
+                        
+                        infoHTML += `
+                            <p><strong>GLB版本：</strong>${version}</p>
+                            <p><strong>文件长度：</strong>${length} 字节</p>
+                        `;
+                        
+                        result.className = 'result success';
+                        result.innerHTML = '✅ <strong>GLB文件有效！</strong><br>文件格式正确，可以正常使用。';
+                        
+                        if (fileSizeMB > 2) {
+                            result.innerHTML += '<br>⚠️ 但是文件大于2MB，无法在微信小程序真机预览中使用，建议压缩。';
+                        } else if (fileSizeMB > 1.5) {
+                            result.innerHTML += '<br>⚠️ 文件接近2MB限制，建议进一步压缩以确保稳定性。';
+                        }
+                        
+                        info.style.display = 'block';
+                        info.innerHTML = infoHTML;
+                        
+                    } else {
+                        result.className = 'result error';
+                        result.innerHTML = `
+                            ❌ <strong>GLB文件无效！</strong><br>
+                            Magic值不正确：0x${magic.toString(16)}<br>
+                            期望值：0x${expectedMagic.toString(16)} ("glTF")<br><br>
+                            <strong>可能的原因：</strong><br>
+                            1. 文件不是标准GLB格式<br>
+                            2. 文件在传输或压缩过程中损坏<br>
+                            3. 使用了不兼容的导出工具<br><br>
+                            <strong>建议：</strong><br>
+                            - 使用原始GLB文件重新压缩<br>
+                            - 使用 gltf-pipeline 或 gltf.report 等标准工具<br>
+                            - 在 gltf-viewer.donmccurdy.com 测试文件
+                        `;
+                        
+                        info.style.display = 'block';
+                        info.innerHTML = infoHTML;
+                    }
+                    
+                } catch (error) {
+                    result.className = 'result error';
+                    result.innerHTML = `❌ <strong>文件读取失败！</strong><br>${error.message}`;
+                    info.style.display = 'none';
+                }
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+    </script>
+</body>
+</html>

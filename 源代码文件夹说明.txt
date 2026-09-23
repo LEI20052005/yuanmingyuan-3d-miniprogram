@@ -1,0 +1,173 @@
+								  源代码文件夹内容说明文档
+
+用途：存放作品开发所需的全部源代码、创作素材及修复成果，体现作品开发过程
+      与创作依据。
+
+包含内容：
+
+├─ 项目素材/                                    存放作品创作所需各类素材
+│   ├─ 现状照片/                                圆明园遗址现状实拍照片
+│   ├─ 老照片_铜版画/                           圆明园历史老照片、铜版画等史料素材
+│   ├─ 3d模型截图/                              小程序中所用到的3D模型的相关截图
+│   └─ 小程序界面截图/                          小程序各页面的界面展示截图
+│
+├─ 2D修复成果/                                  存放2D图像修复的全部成果
+│   ├─ 代表性建筑/                              代表性建筑的修复过程文件，展示修复流程
+│   │   ├─ 现状图.jpg                           建筑现状原始图片
+│   │   ├─ 千问修复图.jpg                       通义千问AI初步修复的图片
+│   │   ├─ 豆包修复图.jpg                       豆包网页端精细化修复的图片
+│   │   └─ 最终校正图.jpg                       经人工校正后的图片
+│   └─ 人工校正最终图/                          所有建筑2D修复的最终成品图
+│
+├─ 源代码/                                      存放作品开发全部代码
+│   ├─ cloudfunctions/                          微信云函数目录
+│   │   └─ getModel/                            云函数：代理下载远程GLB模型文件
+│   │       └─ index.js                         接收modelUrl参数，返回Base64编码的GLB数据
+│   │
+│   ├─ miniprogram/                             小程序主体目录
+│   │   ├─ pages/                               小程序页面目录（核心功能模块）
+│   │   │   ├─ models/                          首页/模型库（Tab第3位）
+│   │   │   │   ├─ models.js                    启动首屏逻辑，上滑手势检测
+│   │   │   │   ├─ models.json                  页面配置（无导航栏，全屏背景）
+│   │   │   │   ├─ models.wxml                  全屏背景图+上滑提示+使用说明弹窗
+│   │   │   │   └─ models.wxss                  固定顶部按钮、上滑动画样式
+│   │   │   │
+│   │   │   ├─ home/                            手绘地图导览（Tab第1位）
+│   │   │   │   ├─ home.js                      加载手绘地图，6个建筑热区点击事件
+│   │   │   │   ├─ home.json                    页面配置
+│   │   │   │   ├─ home.wxml                    手绘地图+热区圆点（脉冲动画）
+│   │   │   │   └─ home.wxss                    地图适配、热区定位、脉冲动画
+│   │   │   │
+│   │   │   ├─ appreciate/                      文物鉴赏（Tab第2位）
+│   │   │   │   ├─ appreciate.js                17件文物数据，2列网格展示
+│   │   │   │   ├─ appreciate.json              页面配置
+│   │   │   │   ├─ appreciate.wxml              2列Grid卡片布局
+│   │   │   │   └─ appreciate.wxss              米白色古风卡片样式
+│   │   │   │
+│   │   │   ├─ detail/                          文物详情页
+│   │   │   │   ├─ detail.js                    文物详情数据查询，3个Tab切换
+│   │   │   │   ├─ detail.json                  页面配置
+│   │   │   │   ├─ detail.wxml                  大图展示+Tab栏+图文内容
+│   │   │   │   └─ detail.wxss                  Tab样式、内容排版
+│   │   │   │
+│   │   │   ├─ repair/                          文物修复（Tab第4位）
+│   │   │   │   ├─ repair.js                    10件修复文物，横向滚动卡片
+│   │   │   │   ├─ repair.json                  页面配置
+│   │   │   │   ├─ repair.wxml                  横向scroll-view卡片列表
+│   │   │   │   └─ repair.wxss                  金色装饰卡片、选中态缩放
+│   │   │   │
+│   │   │   ├─ repairDetail/                    修复详情页
+│   │   │   │   ├─ repairDetail.js              接收卡片数据，映射GLB模型文件
+│   │   │   │   ├─ repairDetail.json            页面配置
+│   │   │   │   ├─ repairDetail.wxml            大图+介绍按钮+3D修复按钮+弹窗
+│   │   │   │   └─ repairDetail.wxss            古风设计、金色渐变按钮
+│   │   │   │
+│   │   │   ├─ modelViewer/                     3D模型查看器（核心页面）
+│   │   │   │   ├─ modelViewer.js               构建web-view URL，加载3D渲染
+│   │   │   │   ├─ modelViewer.json             动态导航栏标题配置
+│   │   │   │   ├─ modelViewer.wxml             导航栏+web-view+加载动画
+│   │   │   │   └─ modelViewer.wxss             深色导航栏、旋转加载动画
+│   │   │   │
+│   │   │   ├─ settings/                        游园寻趣（Tab第5位）
+│   │   │   │   ├─ settings.js                  15道知识问答题库，卡片解锁游戏
+│   │   │   │   ├─ settings.json                页面配置
+│   │   │   │   ├─ settings.wxml                首页+知识卡片（提问+解锁+解读）
+│   │   │   │   └─ settings.wxss                深色背景、古风卡片、手指动画
+│   │   │   │
+│   │   │   ├─ collection/                      藏品列表页（旧版保留）
+│   │   │   │   ├─ collection.js                6件藏品数据展示
+│   │   │   │   ├─ collection.json              页面配置
+│   │   │   │   ├─ collection.wxml              列表模板
+│   │   │   │   └─ collection.wxss              列表样式
+│   │   │   │
+│   │   │   ├─ about/                           关于页面
+│   │   │   │   ├─ about.js                     应用信息、版本、联系方式
+│   │   │   │   ├─ about.json                   页面配置
+│   │   │   │   ├─ about.wxml                   信息展示模板
+│   │   │   │   └─ about.wxss                   关于页面样式
+│   │   │   │
+│   │   │   └─ recommend/                       推荐页面
+│   │   │       ├─ recommend.js                 4个功能推荐卡片
+│   │   │       ├─ recommend.json               页面配置
+│   │   │       ├─ recommend.wxml               推荐卡片模板
+│   │   │       └─ recommend.wxss               推荐页面样式
+│   │   │
+│   │   ├─ custom-tab-bar/                      自定义底部导航栏组件
+│   │   │   ├─ index.js                         tabBar逻辑：路由匹配、切换页面
+│   │   │   ├─ index.json                       组件声明
+│   │   │   ├─ index.wxml                       5个tab按钮模板
+│   │   │   └─ index.wxss                       固定底部、选中态样式
+│   │   │
+│   │   ├─ utils/                               工具函数目录
+│   │   │   └─ mini-model.js                    最小有效GLB文件（Base64硬编码）
+│   │   │
+│   │   ├─ images/                              图片资源目录
+│   │   │   ├─ back.jpg                         首页背景图
+│   │   │   ├─ 导览.jpg                         导览tab图标
+│   │   │   ├─ 鉴赏.jpg                         鉴赏tab图标
+│   │   │   ├─ 首页.jpg                         首页tab图标
+│   │   │   ├─ 修复.jpg                         修复tab图标
+│   │   │   ├─ 我的.jpg                         寻趣tab图标
+│   │   │   └─ README.md                        图标文件添加说明文档
+│   │   │
+│   │   ├─ models/                              3D模型目录（当前为空）
+│   │   │
+│   │   ├─ subpackages/                         分包目录（预留扩展）
+│   │   │   ├─ about/about/                     预留"关于"分包（空壳占位）
+│   │   │   ├─ models/models/                   预留"模型库"分包（空壳占位）
+│   │   │   └─ settings/settings/               预留"设置"分包（空壳占位）
+│   │   │
+│   │   ├─ app.js                               小程序入口文件（打印启动日志）
+│   │   ├─ app.json                             全局配置（页面路由、tabBar）
+│   │   ├─ app.wxss                             全局样式（深色背景）
+│   │   ├─ sitemap.json                         SEO配置（允许所有页面索引）
+│   │   └─ 3d-viewer.html                       ★核心文件★ 3D渲染引擎
+│   │                                           Three.js驱动，GLB模型渲染
+│   │                                           支持手势交互、多显示模式切换
+│   │
+│   ├─ AI修复Python代码/                        用于2D图像修复的Python代码文件
+│   │
+│   ├─ 验证GLB文件.html                         独立的GLB文件格式验证工具
+│   │                                           检查Magic值、版本、文件长度
+│   │                                           支持拖拽上传一键校验
+│   │
+│   ├─ 模型文件说明.txt                         GLB模型大小问题解决方案文档
+│   │                                           3种解决方案：压缩/远程URL/云存储
+│   │
+│   ├─ project.config.json                      项目编译配置（appid、ES6、压缩等）
+│   │
+│   ├─ project.private.config.json              开发者私有配置（热重载等）
+│   │
+│   └─ -p/                                      空目录（临时/遗留）
+│
+└─ 源代码.zip                                   小程序核心代码压缩包
+    （包含miniprogram/和cloudfunctions/完整代码）
+
+
+补充说明：
+
+1. 3D模型文件清单（托管于远程服务器）
+   ├─ 大水法.glb      —— 大水法遗址3D模型
+   ├─ 马首除.glb      —— 马首铜像3D模型
+   ├─ 白黄花亭.glb    —— 黄花阵中心亭3D模型
+   ├─ 放外观.glb      —— 方外观建筑3D模型
+   ├─ 蛇.glb          —— 蛇首铜像3D模型
+   ├─ 鼠.glb          —— 鼠首铜像3D模型
+   ├─ 观水法.glb      —— 观水法建筑3D模型
+   ├─ 花园门.glb      —— 花园门建筑3D模型
+   ├─ 谐奇趣.glb      —— 谐奇趣建筑3D模型
+   └─ 海晏堂.glb      —— 海晏堂建筑3D模型
+   
+   托管地址：https://3dmodel-yuanmingyuan.com/
+
+2. 技术架构要点
+   - 3D渲染：web-view + 远程HTML(Three.js)，绕过2MB文件限制
+   - 模型托管：自有域名服务器，URL参数传递文件名
+   - 导航：5个Tab自定义底部导航栏
+   - 数据：17件文物、10件修复、15道问答
+
+3. 关键依赖
+   - 微信小程序基础库：3.14.2
+   - Three.js（CDN加载）：3D模型渲染
+   - 微信云开发：云函数、云存储能力
+
