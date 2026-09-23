@@ -23,6 +23,7 @@
 ├── cloudfunctions/         # 腾讯云函数 getModel，用于获取模型/文物数据
 ├── project.config.json     # 小程序项目配置
 └── README.md               # 项目文档
+、、、
 
 
 
