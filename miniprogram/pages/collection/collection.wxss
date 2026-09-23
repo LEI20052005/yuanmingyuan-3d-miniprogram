@@ -1,0 +1,164 @@
+/* 藏品列表页样式 - pages/collection/collection.wxss */
+
+/* 
+  ========== 修改指南 ==========
+  修改图片：将 data 数组中的 image 字段改为你的图片路径
+  修改文字：修改 name 字段
+  新增藏品：在 collectionList 数组中新增对象
+*/
+
+page {
+  /* 全局背景色 - 米白色调 */
+  background-color: #F5F0E8;
+  height: 100%;
+}
+
+.container {
+  min-height: 100vh;
+  padding-bottom: 120rpx; /* 为底部导航栏留出空间 */
+  box-sizing: border-box;
+}
+
+/* ========== 页面顶部区域 ========== */
+.header {
+  padding: 40rpx 30rpx 30rpx;
+  text-align: center;
+  /* 国风复古风格 */
+  background: linear-gradient(180deg, #FFF9E6 0%, #F5F0E8 100%);
+}
+
+.title {
+  display: block;
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #8B7355; /* 深棕色 */
+  letter-spacing: 4rpx;
+}
+
+.subtitle {
+  display: block;
+  font-size: 24rpx;
+  color: #A89070; /* 浅棕色 */
+  margin-top: 10rpx;
+}
+
+/* ========== 卡片网格布局 ========== */
+.card-grid {
+  display: grid;
+  /* 2列网格布局 */
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24rpx; /* 卡片间距 */
+  padding: 20rpx 30rpx;
+}
+
+/* ========== 卡片样式 ========== */
+.card {
+  /* 浅米色背景 */
+  background-color: #FFFDF8;
+  /* 圆角设计 */
+  border-radius: 16rpx;
+  /* 阴影效果 */
+  box-shadow: 0 4rpx 16rpx rgba(139, 115, 85, 0.15);
+  /* 点击反馈动画 */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+}
+
+/* 卡片点击态 - 缩放 + 阴影变化 */
+.card:active {
+  transform: scale(0.96);
+  box-shadow: 0 2rpx 8rpx rgba(139, 115, 85, 0.2);
+}
+
+/* ========== 卡片图片区域 ========== */
+.card-image {
+  width: 100%;
+  /* 图片区域高度，可根据需要调整 */
+  height: 280rpx;
+  background-color: #F0EBE0;
+  overflow: hidden;
+}
+
+.artifact-img {
+  width: 100%;
+  height: 100%;
+}
+
+/* ========== 卡片名称区域 ========== */
+.card-name {
+  padding: 20rpx 16rpx;
+  text-align: center;
+}
+
+.card-name text {
+  font-size: 28rpx;
+  color: #5D4E37; /* 深棕色文字 */
+  font-weight: 500;
+  /* 超出显示省略号 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+/* ========== 底部导航栏 ========== */
+.tab-bar {
+  /* 深棕色背景 */
+  background-color: #5D4E37;
+  /* 固定在底部 */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  /* 高度 */
+  height: 100rpx;
+  /* 顶部边框 */
+  border-top: 1rpx solid #4A3F2E;
+  /* 弹性布局 */
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  /* 层级 */
+  z-index: 100;
+  /* 安全区域适配 */
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* ========== 导航项 ========== */
+.tab-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100rpx;
+  position: relative;
+}
+
+.tab-icon {
+  font-size: 40rpx;
+  margin-bottom: 4rpx;
+}
+
+.tab-text {
+  font-size: 22rpx;
+  color: #C4B8A5; /* 未选中颜色 - 浅色 */
+}
+
+/* 选中态 - 藏品 */
+.tab-item.active .tab-text {
+  color: #FFD700; /* 金色高亮 */
+  font-weight: bold;
+}
+
+/* 选中态下划线 */
+.active-line {
+  position: absolute;
+  bottom: 8rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40rpx;
+  height: 4rpx;
+  background-color: #FFD700;
+  border-radius: 2rpx;
+}

@@ -1,0 +1,8 @@
+/* components/xr-model-viewer/index.wxss */
+:host {
+  display: block;
+}
+
+xr-scene {
+  display: block;
+}

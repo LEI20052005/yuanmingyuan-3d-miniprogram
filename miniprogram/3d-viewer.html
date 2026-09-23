@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>3D文物修复</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%; height: 100%; overflow: hidden;
+      background-color: #F5F0E8;
+      font-family: 'STKaiti', 'KaiTi', serif;
+      touch-action: none;
+    }
+
+    #container {
+      width: 100%; height: 100%; position: relative;
+    }
+
+    .header {
+      position: absolute; top: 0; left: 0; right: 0;
+      padding: 20px;
+      background: linear-gradient(180deg, rgba(245,240,232,0.95) 0%, rgba(245,240,232,0) 100%);
+      z-index: 100;
+      display: flex; justify-content: center; align-items: center;
+    }
+
+    .title {
+      color: #5D4E37; font-size: 18px; font-weight: bold; letter-spacing: 4px;
+    }
+
+    .loading {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center; z-index: 200;
+    }
+
+    .loading-spinner {
+      width: 60px; height: 60px;
+      border: 4px solid #C9A96E; border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    .loading-text { color: #5D4E37; font-size: 16px; letter-spacing: 2px; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .controls-hint {
+      position: absolute; bottom: 30px; left: 0; right: 0;
+      text-align: center; z-index: 100; pointer-events: none;
+    }
+
+    .hint-text {
+      display: inline-block;
+      background: rgba(93, 78, 55, 0.85); color: #FFF9E6;
+      padding: 12px 24px; border-radius: 30px;
+      font-size: 14px; letter-spacing: 2px;
+    }
+
+    .progress-bar {
+      position: absolute; bottom: 80px; left: 50%;
+      transform: translateX(-50%);
+      width: 200px; height: 6px;
+      background: rgba(201, 169, 110, 0.3);
+      border-radius: 3px; overflow: hidden; z-index: 100;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #C9A96E, #D4AF37);
+      border-radius: 3px; width: 0%; transition: width 0.2s ease;
+    }
+
+    /* 右侧模式切换按钮 */
+    .mode-buttons {
+      position: absolute; top: 50%; right: 16px;
+      transform: translateY(-50%); z-index: 100;
+      display: flex; flex-direction: column; gap: 16px;
+    }
+
+    .mode-btn {
+      width: 56px; height: 72px; border-radius: 12px;
+      display: flex; flex-direction: column;
+      justify-content: center; align-items: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(139,115,85,0.35);
+      border: 2px solid transparent;
+      transition: all 0.25s ease;
+      background: linear-gradient(135deg, #D4AF37 0%, #B8942E 100%);
+    }
+
+    .mode-btn .mode-icon { font-size: 22px; margin-bottom: 4px; color: #FFF9E6; }
+
+    .mode-btn .mode-label {
+      font-size: 11px; color: #FFF9E6; letter-spacing: 1px; font-weight: bold;
+    }
+
+    .mode-btn.inactive {
+      background: rgba(255, 253, 248, 0.92); border-color: #C9A96E;
+    }
+    .mode-btn.inactive .mode-icon { color: #8B7355; }
+    .mode-btn.inactive .mode-label { color: #8B7355; }
+
+    .mode-btn:active { transform: scale(0.95); }
+
+    /* 介绍光标 */
+    .hotspot-marker {
+      position: absolute; width: 32px; height: 32px;
+      border-radius: 50%;
+      background: rgba(201, 169, 110, 0.25);
+      display: flex; justify-content: center; align-items: center;
+      cursor: pointer; z-index: 90; pointer-events: auto;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .hotspot-marker::before {
+      content: '';
+      width: 12px; height: 12px; border-radius: 50%;
+      background: #D4AF37;
+      box-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: translate(-50%, -50%) scale(1); }
+      50% { transform: translate(-50%, -50%) scale(1.15); }
+    }
+
+    /* 介绍弹窗卡片 */
+    .info-card-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0); z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      pointer-events: none; transition: background 0.3s ease;
+    }
+
+    .info-card-overlay.show {
+      background: rgba(0, 0, 0, 0.5); pointer-events: auto;
+    }
+
+    .info-card {
+      width: 82%; max-width: 340px;
+      background: #FFFDF8; border-radius: 16px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.25); overflow: hidden;
+      transform: scale(0.85); opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .info-card-overlay.show .info-card {
+      transform: scale(1); opacity: 1;
+    }
+
+    .info-card-header {
+      background: linear-gradient(135deg, #5D4E37 0%, #8B7355 100%);
+      padding: 18px 20px; position: relative;
+    }
+
+    .info-card-title {
+      color: #FFF9E6; font-size: 17px; font-weight: bold;
+      letter-spacing: 3px; text-align: center;
+    }
+
+    .info-card-corner {
+      position: absolute; width: 14px; height: 14px;
+      border-color: #C9A96E; border-style: solid;
+    }
+
+    .info-card-corner.tl { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+    .info-card-corner.tr { top: 8px; right: 8px; border-width: 2px 2px 0 0; }
+    .info-card-corner.bl { bottom: 8px; left: 8px; border-width: 0 0 2px 2px; }
+    .info-card-corner.br { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+    .info-card-body {
+      padding: 22px 20px; max-height: 280px; overflow-y: auto;
+    }
+
+    .info-card-text {
+      font-size: 14px; color: #5D4E37; line-height: 26px;
+      letter-spacing: 1px; text-align: justify; text-indent: 2em;
+    }
+
+    .info-card-footer {
+      padding: 0 20px 18px; display: flex; justify-content: center;
+    }
+
+    .info-card-close {
+      background: linear-gradient(135deg, #8B7355 0%, #5D4E37 100%);
+      padding: 10px 48px; border-radius: 24px;
+      box-shadow: 0 4px 12px rgba(93,78,55,0.3);
+    }
+
+    .info-card-close:active { transform: scale(0.95); }
+
+    .info-card-close-text {
+      color: #FFF9E6; font-size: 14px; font-weight: 500; letter-spacing: 3px;
+    }
+
+    .help-panel {
+      position: absolute; top: 80px; right: 20px;
+      background: rgba(255, 253, 248, 0.95);
+      border-radius: 12px; padding: 16px;
+      box-shadow: 0 4px 16px rgba(139,115,85,0.2);
+      z-index: 100; max-width: 200px;
+    }
+
+    .help-title {
+      color: #5D4E37; font-size: 14px; font-weight: bold;
+      margin-bottom: 12px; text-align: center;
+    }
+
+    .help-item {
+      color: #8B7355; font-size: 12px; margin-bottom: 8px;
+      display: flex; align-items: center;
+    }
+
+    .help-icon { margin-right: 8px; }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div class="header">
+      <div class="title" id="artifactName">文物修复</div>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="loading-spinner"></div>
+      <div class="loading-text" id="loadingText">正在加载模型...</div>
+    </div>
+
+    <div class="help-panel" id="helpPanel" style="display: none;">
+      <div class="help-title">操作说明</div>
+      <div class="help-item"><span class="help-icon">👆</span> 单指拖动旋转</div>
+      <div class="help-item"><span class="help-icon">🤏</span> 双指缩放大小</div>
+      <div class="help-item"><span class="help-icon">👆</span> 双指拖动平移</div>
+    </div>
+
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="mode-buttons">
+      <div class="mode-btn inactive" id="btnIntro" title="查看介绍">
+        <span class="mode-icon">ℹ</span>
+        <span class="mode-label">查看介绍</span>
+      </div>
+      <div class="mode-btn" id="btnInteract" title="交互模式">
+        <span class="mode-icon">✥</span>
+        <span class="mode-label">交互模式</span>
+      </div>
+    </div>
+
+    <div id="hotspotsContainer" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:90;"></div>
+
+    <div class="info-card-overlay" id="infoCardOverlay">
+      <div class="info-card">
+        <div class="info-card-header">
+          <div class="info-card-corner tl"></div>
+          <div class="info-card-corner tr"></div>
+          <div class="info-card-title" id="infoCardTitle">标题</div>
+          <div class="info-card-corner bl"></div>
+          <div class="info-card-corner br"></div>
+        </div>
+        <div class="info-card-body">
+          <div class="info-card-text" id="infoCardText">内容</div>
+        </div>
+        <div class="info-card-footer">
+          <div class="info-card-close" id="infoCardClose">
+            <span class="info-card-close-text">关闭</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls-hint">
+      <span class="hint-text" id="hintText">拖拽旋转 · 双指缩放</span>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
+  <script>
+    // ============ URL参数 ============
+    const urlParams = new URLSearchParams(window.location.search);
+    const modelPath = urlParams.get('model') || 'https://cloud1-1g8fk76j07a5c40c-1400307844.tcloudbaseapp.com/xxx.glb';
+    const artifactName = urlParams.get('name') || '文物修复';
+
+    document.getElementById('artifactName').textContent = artifactName;
+
+    // ============ 各模型介绍光标配置 ============
+    // 按模型名称（name参数）匹配，每个模型可独立配置光标数量、位置、名称和介绍文案
+    const hotspotsConfig = {
+      // 1. 海晏堂
+      '海晏堂': [
+        {
+          name: '十二生肖人身兽首铜像',
+          position: { x: -0.8, y: 0.3, z: 0.5 },
+          text: '海晏堂十二生肖人身兽首铜像，是清代经典的水力钟喷泉景观。十二兽首按子鼠、丑牛、寅虎、卯兔、辰龙、巳蛇、午马、未羊、申猴、酉鸡、戌狗、亥猪八字对称排布，左右分列轮流喷水报时。本模型未细化展示兽首细节，已单独设立独立模型板块，欢迎前往对应界面精细鉴赏完整修复模型。'
+        },
+        {
+          name: '蓝色琉璃瓦屋顶',
+          position: { x: 0, y: 1.2, z: 0.2 },
+          text: '海晏堂主楼蓝色琉璃瓦屋顶，是圆明园西洋楼极具特色的中西合璧建筑设计。建筑主体采用西式立面结构，顶部搭配皇家传统蓝色琉璃瓦，风格庄重典雅。完美融合西方建筑形制与中式皇家工艺特色，本模型完整还原屋顶原貌，展现清代独有的中西交融建筑美学与皇家建筑规格。'
+        },
+        {
+          name: '中央石雕贝壳',
+          position: { x: 0, y: -0.2, z: 0.8 },
+          text: '海晏堂喷水池中央石雕贝壳，是整组水力喷泉景观的核心构件与视觉中心。贝壳采用西式巴洛克雕刻工艺，搭配精致蕃花纹饰，造型立体精巧。它承担水流汇聚与分流的关键作用，衔接两侧十二生肖喷泉景观，本模型精准复原石雕细节，还原古建水景的精湛营造工艺。'
+        }
+      ],
+      // 2. 谐奇趣
+      '谐奇趣': [
+        {
+          name: '谐奇趣主体楼',
+          position: { x: 0, y: 0.5, z: 0.4 },
+          text: '谐奇趣主体楼是圆明园西洋楼景区最早建成的西式皇家建筑，为中西合璧的经典水景楼宇。楼宇采用纯正西洋欧式建筑形制，立面雕刻精致规整，整体造型大气端庄。融合西式建筑结构与中式皇家造园理念，本模型完整还原楼宇原貌，再现清代宫廷西式建筑的独特风貌与建造水准。'
+        },
+        {
+          name: '谐奇趣海棠式喷水池',
+          position: { x: 0.6, y: -0.3, z: 0.6 },
+          text: '谐奇趣海棠式喷水池，是西洋楼景区标志性的古典水景设施，因整体造型酷似海棠花而得名。水池形制规整别致，搭配多重西式喷泉构件，是园区早期水力景观的核心载体。兼具观赏价值与实用功能，本模型精准复原水池轮廓与结构细节，还原皇家古典水景的精巧设计与恢弘景致。'
+        }
+      ],
+      // 3. 花园门
+      '花园门': [
+        {
+          name: '花园门门侧石狮雕塑',
+          position: { x: -0.6, y: 0, z: 0.5 },
+          text: '花园门门柱下方石狮雕塑，是西洋楼园林大门的经典配套石雕构件。石狮造型承袭清代皇家石雕工艺，神态威严灵动，雕刻线条浑厚精细。作为大门的装饰与镇守景观，兼具礼制寓意与观赏价值，本模型精准还原石狮整体造型与纹理细节，复刻古建石雕的古朴质感与工艺特色。'
+        },
+        {
+          name: '花园门顶部涡卷纹与浮雕',
+          position: { x: 0, y: 1.0, z: 0.3 },
+          text: '花园门顶部涡卷纹与浮雕，是西式园林大门的核心装饰美学构件。采用欧式经典涡卷造型搭配精致浮雕纹样，线条流畅舒展、层次丰富立体。贴合西洋楼建筑巴洛克设计风格，极大提升了大门的精致度与氛围感，本模型完整复原纹饰细节，还原清代西式园林建筑的精致工艺。'
+        },
+        {
+          name: '花园门半圆形铁花窗',
+          position: { x: 0.4, y: 0.5, z: 0.5 },
+          text: '花园门半圆形铁花窗，是西式园林大门极具特色的通透装饰构件。整体呈规整半圆造型，搭配精巧对称的铁艺花纹，设计简约雅致且富有韵律感。兼顾通风采光与装饰美学，完美适配西洋楼整体建筑风格，本模型精准还原花窗形制与纹理，复刻皇家园林西式构件的独特风貌。'
+        }
+      ],
+      // 4. 观水法
+      '观水法': [
+        {
+          name: '观水法核心宝座',
+          position: { x: 0, y: 0.2, z: -0.3 },
+          text: '观水法核心宝座为清代皇帝专属观景坐席，是大水法景观的核心礼制建筑构件。宝座造型遵从皇家规制，形制庄重威严，承载帝王观览喷泉水景的专属功能。整体设计融合皇家礼制与园林美学，本模型精准还原宝座形制与细节，再现清代皇家观景点位的恢弘格局。'
+        },
+        {
+          name: '观水法五扇石雕屏风',
+          position: { x: 0, y: 0.6, z: -0.5 },
+          text: '观水法五扇石雕屏风坐落于宝座后方，是观景区域的标志性石质景观墙体。五面屏风对称排布，石材纹理古朴，雕刻纹饰精致典雅，起到围合空间、装饰观景区域的作用。本模型完整复原屏风布局与石雕细节，还原皇家园林独有的礼制造景工艺。'
+        },
+        {
+          name: '观水法弧形台基与观景台阶',
+          position: { x: 0, y: -0.3, z: -0.2 },
+          text: '观水法弧形台基与观景台阶，是托起核心宝座的基础观景结构。多层台阶错落递进、弧形规整对称，不仅保障通行功能，更烘托出皇家观景台的庄重层级感。本模型精准复原台基轮廓与台阶层级，还原大水法观景区域严谨的空间营造格局。'
+        }
+      ],
+      // 5. 大水法
+      '大水法': [
+        {
+          name: '大水法主体建筑屋顶',
+          position: { x: 0, y: 1.0, z: 0.2 },
+          text: '大水法主体建筑屋顶采用中式蓝色琉璃瓦设计，是中西合璧景观的标志性顶部结构。屋顶覆盖主楼及两侧配楼，色泽典雅庄重，形制规整大气。西式建筑墙体搭配中式皇家瓦顶，风格独具特色，本模型完整还原屋顶原貌，展现中西交融的古建美学特征。'
+        },
+        {
+          name: '大水法主喷泉壁（水法石龛）',
+          position: { x: 0, y: 0.2, z: 0.6 },
+          text: '大水法主喷泉壁又称水法石龛，是整片喷泉水景的核心主体结构。石龛采用西式巴洛克石雕造型，层次繁复立体，预留多处喷水点位，为水景喷涌的核心载体。本模型精准复原石壁结构与雕刻细节，还原大水法当年恢弘壮观的喷水景观基底。'
+        }
+      ],
+      // 6. 鼠首
+      '鼠首': [
+        {
+          name: '兽鼠首鼠首——单尊兽首通用手持器物',
+          position: { x: -0.3, y: 0.3, z: 0.4 },
+          text: '十二生肖兽首手持长杆器物，是人身兽首造像的经典配套构件。长杆器物形制规整、线条修长，贴合清代宫廷造像制式，为水景装置的辅助配套部件。器物造型精致对称，贴合整体造像风格，本模型精准还原器物形态，复刻古建造像的细节工艺。鼠首造像配有专属长杆手持器物，是清代人身兽首喷泉造像的标准配套构件。器物形制规整修长，比例匀称协调，严格遵循宫廷造像制式，兼具水景辅助功能与装饰效果。整体造型精致对称，贴合鼠首整体气质，本模型精准还原器物原貌与细腻雕刻工艺。'
+        },
+        {
+          name: '单尊兽鼠首鼠首——兽身汉服与坐姿',
+          position: { x: 0, y: -0.1, z: 0.3 },
+          text: '十二生肖兽首下部为人形汉服身躯与标准坐姿，是中西合璧造像的核心特色部分。衣袍纹路规整飘逸，坐姿端庄稳重，承袭清代传统服饰形制与造像礼仪。结合西式喷泉结构打造独有景观，本模型完整还原衣袍纹理与坐姿形态，展现独特的造像艺术风格。鼠首下方搭配传统人形汉服身躯与端正坐姿，是西洋楼中西合璧造像的典型特色。衣袍纹路舒展有序、层次细腻丰富，坐姿庄重规范，契合清代皇家造像礼仪。融合西式喷泉建筑结构，风格独特鲜明，本模型完整还原衣纹质感与端庄坐姿形态。'
+        },
+        {
+          name: '鼠首——兽头',
+          position: { x: 0, y: 0.6, z: 0.3 },
+          text: '鼠首兽头为十二生肖造像之首，是海晏堂水力钟景观的核心头部构件。兽头造型生动逼真，线条流畅细腻，融合中式生肖文化与西式雕塑工艺。作为子时报时的专属造像头部，极具代表性，本模型精准还原鼠首原貌与立体雕刻细节。鼠首为十二生肖造像之首，坐落于喷水池南岸，对应子时喷水报时。兽头造型灵动精巧，线条柔和流畅，巧妙融合中式传统生肖文化与西式立体雕塑技艺。作为水力钟核心代表性构件，本模型精准还原鼠首神态肌理与精细雕刻细节。'
+        }
+      ],
+      // 7. 马首
+      '马首': [
+        {
+          name: '马首——手持器物',
+          position: { x: -0.3, y: 0.3, z: 0.4 },
+          text: '马首造像配备专属长杆手持器物，是清代皇家水景造像的经典配套部件。器物线条挺拔规整，形制统一标准，遵循宫廷造像规范，辅助喷泉装置运作，装饰性与实用性兼备。造型大气沉稳，适配马首威严气韵，本模型精准复刻器物原貌与古法工艺细节。'
+        },
+        {
+          name: '马首——兽身汉服与坐姿',
+          position: { x: 0, y: -0.1, z: 0.3 },
+          text: '马首造像采用正统人形汉服身躯与端庄坐姿，是中西造艺融合的核心体现。衣袍褶皱自然飘逸，纹理规整大气，坐姿威严稳重，严格契合清代礼制与造像标准。搭配西式喷泉景观结构，古今美学交融，本模型完整还原汉服质感与仪态端庄的坐姿形态。'
+        },
+        {
+          name: '马首——兽头',
+          position: { x: 0, y: 0.6, z: 0.3 },
+          text: '马首坐落于喷水池南岸，对应午时喷水报时，是十二兽首中极具代表性的国宝构件。兽头神态昂扬俊朗，肌理细腻逼真，雕刻层次丰富立体。结合中式骏马神韵与西式雕塑技法，艺术质感十足，本模型高度复原马首原貌与经典国宝艺术形态。'
+        }
+      ],
+      // 8. 蛇首
+      '蛇首': [
+        {
+          name: '蛇首——手持器物',
+          position: { x: -0.3, y: 0.3, z: 0.4 },
+          text: '蛇首造像配有专属标准长杆器物，是人身兽首喷泉造像的统一配套构件。器物形制对称规整，比例均匀协调，遵循清代宫廷造像制式，保障水景装置正常运行。造型简约精致，贴合蛇首灵动温婉的气质，本模型精准还原器物形制与细腻造像工艺。'
+        },
+        {
+          name: '蛇首——兽身汉服与坐姿',
+          position: { x: 0, y: -0.1, z: 0.3 },
+          text: '蛇首下部为人形汉服身躯与标准端庄坐姿，是西洋楼独有的中西合璧造像设计。衣袍纹路细腻流畅，排布规整有序，坐姿沉稳合规，承袭清代传统造像礼仪规制。与西式喷泉结构巧妙融合，风格别致，本模型完整还原汉服纹理与标准坐姿形态。'
+        },
+        {
+          name: '蛇首——兽头',
+          position: { x: 0, y: 0.6, z: 0.3 },
+          text: '蛇首坐落于喷水池北岸，对应巳时喷水报时，是海晏堂经典的生肖水景造像构件。兽头造型灵动别致，线条温润柔和，雕刻纹路细腻考究。完美结合中式生肖文化寓意与西式立体雕塑工艺，本模型精准复原蛇首原貌，展现独特的古典造像美学。'
+        }
+      ],
+      // 9. 方外观
+      '方外观': [
+        {
+          name: '方外观蓝色琉璃瓦屋顶',
+          position: { x: 0, y: 1.0, z: 0.2 },
+          text: '方外观蓝色琉璃瓦屋顶，是西洋楼经典的中西合璧顶部建筑结构。建筑整体为西式楼阁形制，顶部搭配中式皇家蓝色琉璃瓦，色调清雅庄重。中西建筑元素巧妙融合，极具辨识度，本模型完整还原屋顶形制与瓦面细节，再现皇家园林独特建筑风貌。'
+        },
+        {
+          name: '方外观弧形石阶与平台',
+          position: { x: 0, y: -0.3, z: 0.5 },
+          text: '方外观弧形石阶与前置平台，是主楼衔接庭院的核心过渡景观结构。石阶呈对称弧形排布，层级规整有序，平台开阔平整，兼具通行与观景功能。整体布局端庄大气，贴合皇家造园规制，本模型精准还原台阶走势与平台整体格局。'
+        },
+        {
+          name: '方外观二层拱窗与阳台',
+          position: { x: 0, y: 0.5, z: 0.4 },
+          text: '方外观二层拱窗与阳台，是主楼立面最具特色的西式建筑构件。三扇拱形大窗对称排布，搭配精致阳台栏杆，线条通透雅致，欧式风格浓郁。丰富了建筑立面层次，提升整体精致度，本模型完整还原窗型与阳台结构细节。'
+        }
+      ],
+      // 10. 黄花阵中心亭（黄花阵部分）
+      '黄花阵中心亭（黄花阵部分）': [
+        {
+          name: '黄花阵欧式穹顶与亭顶装饰',
+          position: { x: 0, y: 1.2, z: 0.2 },
+          text: '黄花阵中心亭欧式穹顶与尖顶装饰，是整座迷宫建筑的制高点与视觉核心。穹顶圆润饱满，顶部尖饰精巧别致，采用纯正欧式园林亭台设计风格。造型轻盈灵动、独具异域风情，本模型精准还原穹顶结构与顶部装饰细节。'
+        },
+        {
+          name: '黄花阵正面台阶',
+          position: { x: 0, y: -0.3, z: 0.5 },
+          text: '黄花阵中心亭正面台阶，是通往亭身的前置入户结构。多层石阶层级均匀、排布规整，对称式设计贴合皇家园林严谨的造景风格，兼顾通行功能与立面美观度。本模型完整复原台阶尺寸与层级细节，还原亭台完整建筑格局。'
+        },
+        {
+          name: '黄花阵八角形亭身与拱门',
+          position: { x: 0, y: 0.3, z: 0.3 },
+          text: '黄花阵中心亭为独特的八角形亭身结构，搭配多处拱形门洞，是欧式迷宫核心建筑主体。八边形结构均衡对称，拱门通透雅致，整体造型精巧别致。融合西式园林设计理念，本模型精准还原亭身形制与拱门构造细节。'
+        }
+      ]
+    };
+
+    // 根据模型名称获取当前模型的光标数据
+    let hotspotsData = [];
+    if (hotspotsConfig[artifactName]) {
+      hotspotsData = hotspotsConfig[artifactName].map(function(item) {
+        return {
+          name: item.name,
+          position: new THREE.Vector3(item.position.x, item.position.y, item.position.z),
+          text: item.text
+        };
+      });
+    }
+    const hasHotspots = hotspotsData.length > 0;
+
+    // ============ Three.js 变量 ============
+    let scene, camera, renderer, controls, model;
+
+    // 状态管理
+    let currentMode = 'interact';
+    let isIntroCardOpen = false;
+
+    const initialCameraPosition = new THREE.Vector3(0, 1, 3);
+    const initialTarget = new THREE.Vector3(0, 0, 0);
+
+    const hotspotMeshes = [];
+    let hotspotDOMElements = [];
+
+    if (typeof THREE === 'undefined') {
+      document.getElementById('loadingText').innerHTML = 'Three.js加载失败<br><br>请检查网络连接';
+    }
+
+    function init() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0xF5F0E8);
+      scene.fog = new THREE.Fog(0xF5F0E8, 5, 20);
+
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.copy(initialCameraPosition);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1;
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      document.getElementById('container').appendChild(renderer.domElement);
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      scene.add(ambientLight);
+
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      dirLight.position.set(5, 10, 7);
+      dirLight.castShadow = true;
+      scene.add(dirLight);
+
+      const dirLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+      dirLight2.position.set(-5, -5, -5);
+      scene.add(dirLight2);
+
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      controls.enablePan = true;
+      controls.panSpeed = 0.5;
+      controls.rotateSpeed = 0.8;
+      controls.zoomSpeed = 1.2;
+      controls.minDistance = 0.5;
+      controls.maxDistance = 10;
+      controls.autoRotate = false;
+      controls.autoRotateSpeed = 2;
+      controls.maxPolarAngle = Math.PI * 0.9;
+      controls.minPolarAngle = Math.PI * 0.1;
+
+      const groundGeo = new THREE.CircleGeometry(3, 64);
+      const groundMat = new THREE.MeshStandardMaterial({ color: 0xE8E0D0, transparent: true, opacity: 0.8 });
+      const ground = new THREE.Mesh(groundGeo, groundMat);
+      ground.rotation.x = -Math.PI / 2;
+      ground.position.y = -1;
+      ground.receiveShadow = true;
+      scene.add(ground);
+
+      loadModel();
+      bindEvents();
+      window.addEventListener('resize', onWindowResize);
+      animate();
+    }
+
+    function loadModel() {
+      if (typeof THREE.GLTFLoader === 'undefined') {
+        document.getElementById('loadingText').innerHTML = '模型加载器加载失败<br><br>请刷新重试';
+        return;
+      }
+
+      const loader = new THREE.GLTFLoader();
+      console.log('正在加载模型:', modelPath);
+      document.getElementById('loadingText').textContent = '正在加载模型...';
+
+      loader.load(
+        modelPath,
+        function(gltf) {
+          model = gltf.scene;
+          const box = new THREE.Box3().setFromObject(model);
+          const center = box.getCenter(new THREE.Vector3());
+          const size = box.getSize(new THREE.Vector3());
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const scale = 2 / maxDim;
+          model.scale.setScalar(scale);
+          model.position.sub(center.multiplyScalar(scale));
+          model.position.y = -0.5;
+
+          model.traverse(function(child) {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+
+          scene.add(model);
+
+          // 只在有配置光标的模型上创建3D热点
+          if (hasHotspots) {
+            createHotspots();
+          }
+
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('progressBar').style.display = 'none';
+          document.getElementById('helpPanel').style.display = 'block';
+          console.log('模型加载成功, 模型名:', artifactName, ' 光标数:', hotspotsData.length);
+        },
+        function(xhr) {
+          var progress = (xhr.loaded / xhr.total * 100).toFixed(0);
+          document.getElementById('progressFill').style.width = progress + '%';
+          document.getElementById('loadingText').textContent = '加载中 ' + progress + '%';
+          if (progress >= 100) {
+            setTimeout(function() {
+              document.getElementById('progressBar').style.display = 'none';
+            }, 500);
+          }
+        },
+        function(error) {
+          console.error('模型加载失败:', error);
+          document.getElementById('loadingText').innerHTML = '模型加载失败<br><br>请检查模型文件是否存在';
+        }
+      );
+    }
+
+    function createHotspots() {
+      hotspotsData.forEach(function(data, index) {
+        var geo = new THREE.SphereGeometry(0.06, 16, 16);
+        var mat = new THREE.MeshBasicMaterial({ color: 0xD4AF37, transparent: true, opacity: 0.9 });
+        var mesh = new THREE.Mesh(geo, mat);
+        mesh.position.copy(data.position);
+        mesh.userData = { hotspotIndex: index };
+        mesh.visible = false;
+        scene.add(mesh);
+        hotspotMeshes.push(mesh);
+
+        var ringGeo = new THREE.RingGeometry(0.08, 0.1, 32);
+        var ringMat = new THREE.MeshBasicMaterial({
+          color: 0xD4AF37, transparent: true, opacity: 0.4, side: THREE.DoubleSide
+        });
+        var ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.position.copy(data.position);
+        ring.lookAt(camera.position);
+        ring.visible = false;
+        ring.userData = { isRing: true, parentIndex: index };
+        scene.add(ring);
+        hotspotMeshes.push(ring);
+      });
+    }
+
+    function updateHotspots() {
+      if (currentMode !== 'intro' || !hasHotspots) return;
+
+      var container = document.getElementById('hotspotsContainer');
+      container.innerHTML = '';
+      hotspotDOMElements = [];
+
+      hotspotsData.forEach(function(data, index) {
+        var mesh = hotspotMeshes[index * 2];
+        if (!mesh) return;
+        mesh.visible = true;
+
+        var ring = hotspotMeshes[index * 2 + 1];
+        if (ring) { ring.visible = true; ring.lookAt(camera.position); }
+
+        var vector = data.position.clone();
+        vector.project(camera);
+
+        var x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+        var y = (-(vector.y * 0.5) + 0.5) * window.innerHeight;
+
+        var marker = document.createElement('div');
+        marker.className = 'hotspot-marker';
+        marker.style.left = x + 'px';
+        marker.style.top = y + 'px';
+        marker.style.pointerEvents = 'auto';
+        marker.dataset.index = index;
+        marker.addEventListener('click', function(e) {
+          e.stopPropagation();
+          openInfoCard(parseInt(this.dataset.index));
+        });
+        container.appendChild(marker);
+        hotspotDOMElements.push(marker);
+      });
+    }
+
+    function hideHotspots() {
+      hotspotMeshes.forEach(function(m) { m.visible = false; });
+      document.getElementById('hotspotsContainer').innerHTML = '';
+      hotspotDOMElements = [];
+    }
+
+    function openInfoCard(index) {
+      var data = hotspotsData[index];
+      if (!data) return;
+      document.getElementById('infoCardTitle').textContent = data.name;
+      document.getElementById('infoCardText').textContent = data.text;
+      document.getElementById('infoCardOverlay').classList.add('show');
+      isIntroCardOpen = true;
+    }
+
+    function closeInfoCard() {
+      document.getElementById('infoCardOverlay').classList.remove('show');
+      isIntroCardOpen = false;
+    }
+
+    function resetView() {
+      camera.position.copy(initialCameraPosition);
+      controls.target.copy(initialTarget);
+      controls.update();
+    }
+
+    function setControlsEnabled(enabled) {
+      controls.enabled = enabled;
+      controls.enableRotate = enabled;
+      controls.enableZoom = enabled;
+      controls.enablePan = enabled;
+    }
+
+    function switchToIntroMode() {
+      if (currentMode === 'intro') return;
+      if (!hasHotspots) {
+        // 该模型暂无介绍光标配置，给出提示
+        alert('该模型暂无局部介绍');
+        return;
+      }
+      currentMode = 'intro';
+      resetView();
+      setControlsEnabled(false);
+      updateHotspots();
+      document.getElementById('btnIntro').classList.remove('inactive');
+      document.getElementById('btnInteract').classList.add('inactive');
+      document.getElementById('hintText').textContent = '点击光标点查看介绍';
+      console.log('切换到：查看介绍模式 (' + artifactName + ')');
+    }
+
+    function switchToInteractMode() {
+      if (currentMode === 'interact') return;
+      currentMode = 'interact';
+      closeInfoCard();
+      hideHotspots();
+      resetView();
+      setControlsEnabled(true);
+      document.getElementById('btnIntro').classList.add('inactive');
+      document.getElementById('btnInteract').classList.remove('inactive');
+      document.getElementById('hintText').textContent = '拖拽旋转 · 双指缩放';
+      console.log('切换到：交互模式');
+    }
+
+    function bindEvents() {
+      document.getElementById('btnIntro').addEventListener('click', switchToIntroMode);
+      document.getElementById('btnInteract').addEventListener('click', switchToInteractMode);
+      document.getElementById('infoCardClose').addEventListener('click', closeInfoCard);
+      document.getElementById('infoCardOverlay').addEventListener('click', closeInfoCard);
+      document.querySelector('.info-card').addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+    }
+
+    function onWindowResize() {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      if (currentMode === 'intro') { updateHotspots(); }
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+
+      if (currentMode === 'intro' && hotspotDOMElements.length > 0) {
+        hotspotsData.forEach(function(data, index) {
+          var vector = data.position.clone();
+          vector.project(camera);
+          var x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+          var y = (-(vector.y * 0.5) + 0.5) * window.innerHeight;
+          var marker = hotspotDOMElements[index];
+          if (marker) {
+            marker.style.left = x + 'px';
+            marker.style.top = y + 'px';
+            if (vector.z > 1 || x < -50 || x > window.innerWidth + 50 || y < -50 || y > window.innerHeight + 50) {
+              marker.style.display = 'none';
+            } else {
+              marker.style.display = 'flex';
+            }
+          }
+        });
+      }
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>

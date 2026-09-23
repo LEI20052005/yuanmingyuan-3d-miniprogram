@@ -1,0 +1,143 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #FFF9E6 0%, #F5F0E8 100%);
+  padding: 40rpx;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 60rpx;
+}
+
+.app-icon {
+  font-size: 120rpx;
+  margin-bottom: 30rpx;
+}
+
+.app-name {
+  display: block;
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #8B7355;
+  margin-bottom: 15rpx;
+}
+
+.app-version {
+  display: block;
+  font-size: 28rpx;
+  color: #A89070;
+  background: rgba(139, 115, 85, 0.1);
+  padding: 10rpx 30rpx;
+  border-radius: 20rpx;
+  display: inline-block;
+}
+
+.section {
+  background: rgba(255, 255,255, 0.8);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  border: 1px solid rgba(139, 115, 85, 0.2);
+  box-shadow: 0 4rpx 20rpx rgba(139, 115, 85, 0.1);
+}
+
+.section-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #8B7355;
+  margin-bottom: 20rpx;
+}
+
+.section-content {
+  display: block;
+  font-size: 28rpx;
+  color: #8B7355;
+  line-height: 1.6;
+}
+
+.feature-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15rpx;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  background: rgba(139, 115, 85, 0.08);
+  border-radius: 12rpx;
+}
+
+.feature-icon {
+  font-size: 32rpx;
+  color: #FF8C00;
+  margin-right: 20rpx;
+  font-weight: bold;
+}
+
+.feature-text {
+  font-size: 28rpx;
+  color: #8B7355;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  padding: 25rpx;
+  background: rgba(139, 115, 85, 0.08);
+  border-radius: 12rpx;
+  margin-bottom: 15rpx;
+}
+
+.contact-label {
+  font-size: 26rpx;
+  color: #A89070;
+  width: 100rpx;
+}
+
+.contact-value {
+  flex: 1;
+  font-size: 28rpx;
+  color: #8B7355;
+}
+
+.contact-action {
+  font-size: 24rpx;
+  color: #FF8C00;
+  padding: 8rpx 20rpx;
+  background: rgba(255, 140, 0, 0.15);
+  border-radius: 15rpx;
+}
+
+.action-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25rpx;
+  background: rgba(139, 115, 85, 0.08);
+  border-radius: 12rpx;
+  margin-bottom: 15rpx;
+}
+
+.action-text {
+  font-size: 28rpx;
+  color: #8B7355;
+}
+
+.action-arrow {
+  font-size: 40rpx;
+  color: #A89070;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 40rpx;
+  padding: 20rpx;
+}
+
+.footer-text {
+  font-size: 24rpx;
+  color: #A89070;
+}

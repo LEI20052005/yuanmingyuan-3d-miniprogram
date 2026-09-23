@@ -1,0 +1,60 @@
+{
+  "pages": [
+    "pages/models/models",
+    "pages/home/home",
+    "pages/repair/repair",
+    "pages/repairDetail/repairDetail",
+    "pages/modelViewer/modelViewer",
+    "pages/appreciate/appreciate",
+    "pages/settings/settings",
+    "pages/collection/collection",
+    "pages/detail/detail"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "圆明园文物展示",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#999999",
+    "selectedColor": "#FF8C00",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "导览",
+        "iconPath": "images/导览.jpg",
+        "selectedIconPath": "images/导览.jpg"
+      },
+      {
+        "pagePath": "pages/appreciate/appreciate",
+        "text": "鉴赏",
+        "iconPath": "images/鉴赏.jpg",
+        "selectedIconPath": "images/鉴赏.jpg"
+      },
+      {
+        "pagePath": "pages/models/models",
+        "text": "首页",
+        "iconPath": "images/首页.jpg",
+        "selectedIconPath": "images/首页.jpg"
+      },
+      {
+        "pagePath": "pages/repair/repair",
+        "text": "修复",
+        "iconPath": "images/修复.jpg",
+        "selectedIconPath": "images/修复.jpg"
+      },
+      {
+        "pagePath": "pages/settings/settings",
+        "text": "我的",
+        "iconPath": "images/我的.jpg",
+        "selectedIconPath": "images/我的.jpg"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents",
+  "usingComponents": {}
+}

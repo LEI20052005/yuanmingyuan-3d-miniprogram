@@ -1,0 +1,50 @@
+<view class="container">
+  <!-- 全屏地图容器 -->
+  <view class="map-container">
+    <!-- 手绘地图图片，宽度固定，高度自适应 -->
+    <image 
+      class="map-image" 
+      src="{{mapImageUrl}}"
+      mode="widthFix"
+      bindload="onMapLoad"
+    ></image>
+
+    <!-- 热区遮罩层，绝对定位覆盖在地图上 -->
+    <view class="hotspot-overlay">
+      <!-- 黄花阵热区 -->
+      <view class="hotspot hotspot-1" bindtap="onHotspotTap" data-id="huanghuazhen">
+        <view class="hotspot-pulse"></view>
+      </view>
+      
+      <!-- 方外观热区 -->
+      <view class="hotspot hotspot-2" bindtap="onHotspotTap" data-id="fangwaiguan">
+        <view class="hotspot-pulse"></view>
+      </view>
+      
+      <!-- 花园门北门热区 -->
+      <view class="hotspot hotspot-3" bindtap="onHotspotTap" data-id="huayuanmen">
+        <view class="hotspot-pulse"></view>
+      </view>
+      
+      <!-- 海晏堂热区 -->
+      <view class="hotspot hotspot-4" bindtap="onHotspotTap" data-id="haiyantang">
+        <view class="hotspot-pulse"></view>
+      </view>
+      
+      <!-- 谐奇趣热区 -->
+      <view class="hotspot hotspot-5" bindtap="onHotspotTap" data-id="xieqiqu">
+        <view class="hotspot-pulse"></view>
+      </view>
+      
+      <!-- 观水法热区 -->
+      <view class="hotspot hotspot-6" bindtap="onHotspotTap" data-id="guanshuifa">
+        <view class="hotspot-pulse"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部提示 -->
+  <view class="bottom-tip">
+    <text class="tip-text">点击地图中的地标，查看3D修复模型</text>
+  </view>
+</view>

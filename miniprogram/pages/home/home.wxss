@@ -1,0 +1,136 @@
+/* 导览页面样式 */
+
+/* 页面容器 */
+.container {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  background-color: #000;
+}
+
+/* 地图容器 */
+.map-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 地图图片 - 宽度固定，高度自适应填充 */
+.map-image {
+  width: 100%;
+  min-height:92vh;
+  height: auto;
+  max-width: 100%;
+  display: block;
+  /* 纵向拉伸适配不同屏幕高度 */
+  transform-origin: top center;
+}
+
+/* 热区遮罩层 */
+.hotspot-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* 热区基础样式 */
+.hotspot {
+  position: absolute;
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background-color: rgba(255, 140, 0, 0.3);
+  border: 2rpx solid rgba(255, 140, 0, 0.6);
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.hotspot:active {
+  transform: translate(-50%, -50%) scale(0.9);
+  background-color: rgba(255, 140, 0, 0.5);
+}
+
+/* 热区脉冲动画 */
+.hotspot-pulse {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: rgba(255, 140, 0, 0.4);
+  animation: pulse 2s ease-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+/* ===== 各热区位置配置 ===== */
+/* 请根据实际地图调整位置百分比 */
+
+/* 热区1 - 黄花阵 */
+.hotspot-1 {
+  left: 30%;
+  top: 35%;
+}
+
+/* 热区2 - 方外观 */
+.hotspot-2 {
+  left: 58%;
+  top: 43%;
+}
+
+/* 热区3 - 花园门北门 */
+.hotspot-3 {
+  left: 23%;
+  top: 55%;
+}
+
+/* 热区4 - 海晏堂 */
+.hotspot-4 {
+  left: 70%;
+  top: 63%;
+}
+
+/* 热区5 - 谐奇趣 */
+.hotspot-5 {
+  left: 30%;
+  top: 75%;
+}
+
+/* 热区6 - 观水法 */
+.hotspot-6 {
+  left: 63%;
+  top: 82%;
+}
+
+/* 底部提示 */
+.bottom-tip {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 20rpx;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
+  text-align: center;
+}
+
+.tip-text {
+  color: #fff;
+  font-size: 26rpx;
+  text-shadow: 0 2rpx 4rpx rgba(0, 0, 0, 0.5);
+}

@@ -1,0 +1,115 @@
+/* 文物鉴赏页样式 - pages/appreciate/appreciate.wxss */
+
+/* 全局背景色 - 米白色调 */
+page {
+  background-color: #F5F0E8;
+  height: 100%;
+}
+
+.container {
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* ========== 顶部返回栏 ========== */
+.header-bar {
+  position: fixed;
+  top: 20rpx;
+  left: 20rpx;
+  z-index: 100;
+}
+
+.back-btn {
+  width: 60rpx;
+  height: 60rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.1);
+}
+
+.back-icon {
+  font-size: 36rpx;
+  color: #5D4E37;
+  font-weight: bold;
+}
+
+/* ========== 页面顶部区域 ========== */
+.header {
+  padding: 40rpx 30rpx 30rpx;
+  text-align: center;
+  background: linear-gradient(180deg, #FFF9E6 0%, #F5F0E8 100%);
+}
+
+.title {
+  display: block;
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #8B7355;
+  letter-spacing: 4rpx;
+}
+
+.subtitle {
+  display: block;
+  font-size: 24rpx;
+  color: #A89070;
+  margin-top: 10rpx;
+}
+
+/* ========== 卡片网格布局 - 2列 ========== */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24rpx;
+  padding: 20rpx 30rpx;
+  padding-bottom: 180rpx; /* 为底部tabBar留出空间 */
+}
+
+/* ========== 卡片样式 ========== */
+.card {
+  background-color: #FFFDF8;
+  border-radius: 16rpx;
+  box-shadow: 0 4rpx 16rpx rgba(139, 115, 85, 0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  overflow: hidden;
+}
+
+/* 卡片点击态 - 缩放反馈 */
+.card:active {
+  transform: scale(0.96);
+  box-shadow: 0 2rpx 8rpx rgba(139, 115, 85, 0.2);
+}
+
+/* ========== 卡片图片区域 ========== */
+.card-image {
+  width: 100%;
+  height: 280rpx;
+  background-color: #F0EBE0;
+}
+
+.placeholder-icon {
+  font-size: 80rpx;
+}
+
+.artifact-img {
+  width: 100%;
+  height: 100%;
+}
+
+/* ========== 卡片名称区域 ========== */
+.card-name {
+  padding: 20rpx 16rpx;
+  text-align: center;
+}
+
+.card-name text {
+  font-size: 28rpx;
+  color: #5D4E37;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}

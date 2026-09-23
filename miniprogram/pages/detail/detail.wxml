@@ -1,0 +1,54 @@
+<!-- 文物详情页 - pages/detail/detail.wxml -->
+<!-- 
+  页面说明：
+  - 顶部返回按钮
+  - 文物大图展示
+  - 文物名称和地点信息
+  - Tab标签切换（历史简介、地点、发现）
+-->
+<view class="container">
+  <!-- 文物大图通栏展示 -->
+  <view class="hero-image">
+    <image 
+      src="{{currentArtifact.image}}" 
+      mode="aspectFill" 
+      class="hero-img"
+    ></image>
+  </view>
+
+  <!-- 文物信息区域 -->
+  <view class="info-section">
+    <!-- 文物名称 -->
+    <view class="artifact-name">{{currentArtifact.name}}</view>
+
+    <!-- Tab 标签栏 -->
+    <view class="tab-header">
+      <view 
+        class="tab-item {{currentTab === 0 ? 'active' : ''}}" 
+        bindtap="switchTab" 
+        data-index="0">
+        <text class="tab-label">现状介绍</text>
+        <view class="tab-line" wx:if="{{currentTab === 0}}"></view>
+      </view>
+      <view 
+        class="tab-item {{currentTab === 2 ? 'active' : ''}}" 
+        bindtap="switchTab" 
+        data-index="2">
+        <text class="tab-label">鉴赏要点</text>
+        <view class="tab-line" wx:if="{{currentTab === 2}}"></view>
+      </view>
+    </view>
+
+    <!-- Tab 内容区域 -->
+    <scroll-view class="content-area" scroll-y>
+      <!-- 历史简介 -->
+      <view class="tab-content" wx:if="{{currentTab === 0}}">
+        <text class="content-text">{{currentArtifact.intro}}</text>
+      </view>
+      <!-- 发现 -->
+      <view class="tab-content" wx:if="{{currentTab === 2}}">
+        <text class="content-text">{{currentArtifact.discovery}}</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>

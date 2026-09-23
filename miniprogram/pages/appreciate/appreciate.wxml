@@ -1,0 +1,31 @@
+<!-- 文物鉴赏页 - pages/appreciate/appreciate.wxml -->
+<!-- 2列网格布局展示文物卡片 -->
+<view class="container">
+  <!-- 页面标题 -->
+  <view class="header">
+    <text class="title">文物鉴赏</text>
+    <text class="subtitle">探寻历史瑰宝</text>
+  </view>
+
+  <!-- 文物卡片网格 - 2列布局 -->
+  <view class="card-grid">
+    <view 
+      class="card" 
+      wx:for="{{artifacts}}" 
+      wx:key="id"
+      bindtap="viewDetail" 
+      data-id="{{item.id}}">
+      <!-- 文物图片 -->
+      <image 
+        class="card-image" 
+        src="{{item.image}}" 
+        mode="aspectFill"
+        lazy-load="{{true}}"
+      ></image>
+      <!-- 文物名称 -->
+      <view class="card-name">
+        <text>{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+</view>

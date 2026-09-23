@@ -1,0 +1,58 @@
+<view class="container">
+  <view class="header">
+    <view class="app-icon">🎨</view>
+    <text class="app-name">{{appInfo.name}}</text>
+    <text class="app-version">版本 {{appInfo.version}}</text>
+  </view>
+
+  <view class="section">
+    <text class="section-title">应用介绍</text>
+    <text class="section-content">{{appInfo.description}}</text>
+  </view>
+
+  <view class="section">
+    <text class="section-title">主要功能</text>
+    <view class="feature-list">
+      <view 
+        class="feature-item" 
+        wx:for="{{features}}" 
+        wx:key="*this"
+        bindtap="onFeatureTap"
+        data-index="{{index}}"
+      >
+        <text class="feature-icon">✓</text>
+        <text class="feature-text">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <text class="section-title">联系我们</text>
+    <view class="contact-item" bindtap="onContactTap" data-type="email">
+      <text class="contact-label">邮箱</text>
+      <text class="contact-value">{{contact.email}}</text>
+      <text class="contact-action">复制</text>
+    </view>
+    <view class="contact-item" bindtap="onContactTap" data-type="website">
+      <text class="contact-label">网站</text>
+      <text class="contact-value">{{contact.website}}</text>
+      <text class="contact-action">复制</text>
+    </view>
+  </view>
+
+  <view class="section">
+    <text class="section-title">其他</text>
+    <view class="action-item" bindtap="checkUpdate">
+      <text class="action-text">检查更新</text>
+      <text class="action-arrow">›</text>
+    </view>
+    <view class="action-item" bindtap="openLicense">
+      <text class="action-text">使用许可</text>
+      <text class="action-arrow">›</text>
+    </view>
+  </view>
+
+  <view class="footer">
+    <text class="footer-text">© 2024 3D模型修复工具</text>
+  </view>
+</view>
