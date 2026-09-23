@@ -15,7 +15,7 @@
 
 ## 📁 目录结构
 ├── miniprogram/            # 小程序前端代码
-│   ├── components/         # 自定义组件（3D 模型查看器 xr-model-viewer、自定义 tabbar）
+│   ├── components/         # 自定义组件（3D 模型查看器 xr-model-viewer、自定义                                    tabbar）
 │   ├── pages/              # 页面：首页、文物赏析、收藏、详情页、关于页
 │   ├── images/             # 页面静态图片资源
 │   ├── models/             # 模型相关 JS 逻辑
